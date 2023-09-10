@@ -6,7 +6,7 @@ const datePickerStyles = {
   position: 'fixed',
   top: '0',
   left: '0',
-  width: '100%',
+  width: '98%',
   backgroundColor: '#fff',
   padding: '10px',
   borderBottom: '1px solid #ccc',

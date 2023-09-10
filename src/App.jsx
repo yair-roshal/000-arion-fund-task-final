@@ -5,42 +5,40 @@ import DatePicker from './components/DatePicker'
 import GalleryApp from './components/GalleryApp'
 import StyledButton from './components/StyledButton'
 import Box from '@mui/material/Box'
-import { Link } from 'react-scroll'
 
 const limit = 20
+
 function App() {
-  const [images, setImages] = useState([])
-  const [page, setPage] = useState(1)
+  // State variables for managing images, pagination, loading state, and errors
+  const [images, setImages] = useState([]) // Stores the fetched images
+  const [page, setPage] = useState(1) // Keeps track of the current page number
+  const [isLoading, setIsLoading] = useState(false) // Indicates whether new images are being loaded
+  const [error, setError] = useState(null) // Stores any error that occurs during image fetching
 
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState(null)
-
-  // useEffect____________________
-
+  // useEffect to fetch initial images when the component mounts
   useEffect(() => {
     fetchImages()
   }, [])
 
+  // Function to handle scrolling and trigger image loading
   const handleScroll = () => {
     if (
-      window.innerHeight + document.documentElement.scrollTop !==
+      window.innerHeight + document.documentElement.scrollTop + 100 >=
         document.documentElement.offsetHeight ||
       isLoading
     ) {
-      return
+      fetchImages()
     }
-    fetchImages()
   }
 
+  // useEffect to add and remove the scroll event listener
   useEffect(() => {
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [isLoading])
 
-  // functions__________________
-
+  // Function to fetch images from the API
   const fetchImages = async () => {
-    console.log('fetchImages')
     setIsLoading(true)
     setError(null)
 
@@ -58,34 +56,52 @@ function App() {
     }
   }
 
-  const handleDateChange = (date) => {
+  // Function to handle date change and fetch random images
+  const handleDateChange = () => {
     const randomInt = Math.floor(Math.random() * 50) + 1
-
     setImages([])
     setPage(randomInt)
     fetchImages()
   }
 
+  const scrollDown = () => {
+    global.scrollBy({
+      top: 5000,
+      left: 0,
+      behavior: 'smooth',
+    })
+  }
+
+  const scrollToTop = () => {
+    global.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'smooth',
+    })
+  }
+
   return (
     <>
-      <Box>
-        <div id='top'></div>
+      <DatePicker onDateChange={handleDateChange} />
 
-        <DatePicker onDateChange={handleDateChange} />
-        <GalleryApp images={images} />
-      </Box>
+      {/* GalleryApp component to display the fetched images */}
+      <GalleryApp images={images} />
+
+      {/* Loading indicator */}
       {isLoading && <p>Loading...</p>}
+
+      {/* Display error message if there's an error */}
       {error && <p>Error: {error.message}</p>}
 
-      <Link to='top' smooth={true} duration={1000} offset={-50}>
-        <StyledButton sxProps={{ right: '20px' }}>Scroll to Top</StyledButton>
-      </Link>
+      {/* Scroll To Top button */}
+      <StyledButton sxProps={{ right: '20px' }} onClick={scrollToTop}>
+        Scroll to Top
+      </StyledButton>
 
-      <div id='down'></div>
-
-      <Link to='down' smooth={true} duration={1000} offset={-50}>
-        <StyledButton sxProps={{ left: '20px' }}>Scroll Down</StyledButton>
-      </Link>
+      {/* Scroll down button */}
+      <StyledButton sxProps={{ left: '20px' }} onClick={scrollDown}>
+        Scroll Down
+      </StyledButton>
     </>
   )
 }
